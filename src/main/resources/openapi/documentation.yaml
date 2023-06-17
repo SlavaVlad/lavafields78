@@ -1,0 +1,126 @@
+openapi: "3.0.3"
+info:
+  title: "productserver7 API"
+  description: "productserver7 API"
+  version: "1.0.0"
+servers:
+- url: "https://productserver7"
+paths:
+  /:
+    get:
+      description: "Page, that shows, that server is running"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Hello World!"
+  /command:
+    post:
+      description: "Main client command endpoint"
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/Command"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ExecutionResult"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Cannot deserialize command"
+                Example#2:
+                  value: ""
+  /hello:
+    get:
+      description: "Page with greeting after login"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+    post:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+  /login:
+    get:
+      description: "Primary login endpoint"
+      responses:
+        "200":
+          description: "OK <br> Redirect"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "/hello"
+    post:
+      description: ""
+      responses:
+        "200":
+          description: "OK <br> Redirect"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "/hello"
+  /json/kotlinx-serialization:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+components:
+  schemas:
+    Command:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        args:
+          type: "array"
+          items:
+            type: "string"
+    ExecutionResult:
+      type: "object"
+      properties:
+        message:
+          type: "string"
+        error:
+          type: "string"
