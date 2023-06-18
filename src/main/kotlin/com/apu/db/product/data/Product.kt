@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import java.util.*
 
 @Serializable
-class Product(
+open class Product(
     val id: // Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     Long? = null,
     val name0: // Поле не может быть null, Строка не может быть пустой

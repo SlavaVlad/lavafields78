@@ -1,4 +1,4 @@
-package com.apu.db.product.requests
+package com.apu.plugins
 
 import app.common.server.Command
 import app.common.server.CommandServer
@@ -58,6 +58,18 @@ fun Application.routingForProducts(dao: ProductDao) {
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.BadRequest, "Cannot deserialize command")
                 }
+            }
+            get("/products/all") {
+                call.respond(dao.getProducts())
+            }
+            post("/products/edit/{id}") {
+                dao.removeProductById(call.parameters["id"]!!.toLong())
+                dao.addProduct(call.receive())
+                call.respond(HttpStatusCode.Created)
+            }
+            delete("/products/delete/{id}") {
+                dao.removeProductById(call.parameters["id"]!!.toLong())
+                call.respond(HttpStatusCode.OK)
             }
         }
     }

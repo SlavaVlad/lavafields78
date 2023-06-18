@@ -1,7 +1,7 @@
 package com.apu.db.user
 
 import com.apu.data.ExecutionResult
-import com.apu.db.product.ProductSchema
+import com.apu.db.ProductSchema
 import org.jetbrains.exposed.sql.ResultRow
 
 data class User(

@@ -1,7 +1,7 @@
 package com.apu.db.user
 
 import com.apu.data.ExecutionResult
-import com.apu.db.product.ProductSchema
+import com.apu.db.ProductSchema
 import com.apu.plugins.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

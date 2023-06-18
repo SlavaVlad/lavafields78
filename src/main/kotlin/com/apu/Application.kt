@@ -1,7 +1,6 @@
 package com.apu
 
 import com.apu.db.product.ProductRepository
-import com.apu.db.product.requests.routingForProducts
 import com.apu.plugins.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*

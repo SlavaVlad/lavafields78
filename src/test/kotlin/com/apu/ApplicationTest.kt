@@ -1,7 +1,7 @@
 package com.apu
 
 import com.apu.db.product.ProductRepository
-import com.apu.db.product.requests.routingForProducts
+import com.apu.plugins.routingForProducts
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
