@@ -60,12 +60,7 @@ paths:
                 Example#1:
                   value: ""
     post:
-      description: "authenticate(\"auth-form\") { <br> route(\"/login\") { <br> get\
-        \ { <br> val userName = call.principal<UserIdPrincipal>()?.name.toString()\
-        \ <br> call.sessions.set(UserSession(name = userName, count = 1)) <br> } <br>\
-        \ post { <br> val userName = call.principal<UserIdPrincipal>()?.name.toString()\
-        \ <br> call.sessions.set(UserSession(name = userName, count = 1)) <br> } <br>\
-        \ } <br> } <br> authenticate(\"auth-session\") {"
+      description: ""
       responses:
         "200":
           description: "OK"
@@ -76,6 +71,11 @@ paths:
               examples:
                 Example#1:
                   value: ""
+  /login:
+    get:
+      description: ""
+    post:
+      description: ""
   /json/kotlinx-serialization:
     get:
       description: ""

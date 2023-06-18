@@ -1,48 +1,36 @@
 package com.apu.plugins
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 
-data class UserSession(val name: String, val count: Int) : Principal
-
 fun Application.configureSecurity() {
-//    install(Sessions) {
-//        cookie<UserSession>("user_session") {
-//            cookie.path = "/"
-//            cookie.maxAgeInSeconds = 60
-//        }
-//    }
-//    install(Authentication) {
-//        form("auth-form") {
-//            userParamName = "username"
-//            passwordParamName = "password"
-//            validate { credentials ->
-//                if (credentials.name == "test" && credentials.password == "test") {
-//                    UserIdPrincipal(credentials.name)
-//                } else {
-//                    null
-//                }
-//            }
-//            challenge {
-//                call.respond(HttpStatusCode.Unauthorized)
-//            }
-//        }
-//        session<UserSession>("auth-session") {
-//            validate { session ->
-//                if (session.name.isNotEmpty()) {
-//                    session
-//                } else {
-//                    null
-//                }
-//            }
-//            challenge {
-//                if (it == null) {
-//                    call.respondRedirect("/login")
-//                }
-//            }
-//        }
-//    }
+    val secret = "secretforme" //environment.config.property("jwt.secret").getString()
+    val myRealm = "access to commands" // environment.config.property("jwt.realm").getString()
+    install(Authentication) {
+        jwt("auth-jwt") {
+            realm = myRealm
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(secret))
+                    .build()
+            )
+            validate { credential ->
+                if (credential.payload.getClaim("username").asString() != "") {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
+            }
+            challenge { defaultScheme, realm ->
+                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+            }
+        }
+    }
 }
