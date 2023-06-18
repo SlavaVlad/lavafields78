@@ -1,7 +1,7 @@
 package app.common.server
 
 import com.apu.ConsoleColors
-import com.apu.callback.ExecutionResult
+import com.apu.data.ExecutionResult
 import com.apu.db.product.ProductDao
 import com.apu.db.product.ProductRepository
 import com.apu.db.product.requests.Argument
@@ -208,6 +208,7 @@ class CommandServer(private val dao: ProductDao) {
     }
 
     fun findReferenceOrNull(commandName: String): CommandReference? {
+        println(commandName)
         return commands[commandName]
     }
 

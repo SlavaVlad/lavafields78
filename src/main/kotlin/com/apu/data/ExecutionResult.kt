@@ -1,4 +1,4 @@
-package com.apu.callback
+package com.apu.data
 
 import kotlinx.serialization.Serializable
 

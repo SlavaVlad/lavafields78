@@ -3,6 +3,7 @@ package com.apu.db.product
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.jetbrains.exposed.sql.transactions.transaction
 import persistence.database.product.UnitOfMeasure
@@ -24,7 +25,7 @@ class ProductSchema(val database: Database) {
 
     object Metadata : Table() { // Дополнительная информация о продукте
         val id = long("id").autoIncrement()
-        val createdBy = varchar("created_by", 128)
+        val createdBy = long("created_by").references(User.id)
         val createdAt = timestamp("created_at")
 
         override val primaryKey: PrimaryKey = PrimaryKey(id)
@@ -34,6 +35,8 @@ class ProductSchema(val database: Database) {
         val id = long("id").autoIncrement()
         val name = varchar("name", 128)
         val passwordHashed = varchar("password", 128)
+        val height = integer("height")
+        val weight = integer("weight")
 
         override val primaryKey: PrimaryKey = PrimaryKey(id)
     }

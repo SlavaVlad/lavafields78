@@ -1,39 +1,61 @@
 package com.apu.db.product//package app.database
 
-import com.apu.callback.ExecutionResult
+import com.apu.data.ExecutionResult
 import com.apu.plugins.DatabaseFactory.dbQuery
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import persistence.database.product.Product
+import java.sql.Timestamp
+import java.time.Instant
 import java.util.*
 
 class ProductRepository : ProductDao {
 
-    private val products: TreeSet<Product> = TreeSet<Product>()
+    private val products = IMC()
 
     override fun getProducts(): Set<Product> {
-        return products
+        return runBlocking {
+            products.mutex.withLock {
+                products.products
+            }
+        }
     }
 
-    override suspend fun addProduct(product: Product, onResult: (ExecutionResult) -> Unit) = dbQuery {
+    override suspend fun addProduct(product: Product, onResult: (ExecutionResult) -> Unit) {
         try {
-            with(ProductSchema.Products) {
-                insert {
-                    it[name] = product.name0.toString()
-                    it[coordinate_x] = product.coordinates?.x?.toFloat()?: throw MissingFieldException("coordinate_x")
-                    it[coordinate_y] = product.coordinates.y?.toFloat()?: throw MissingFieldException("coordinate_y")
-                    it[price] = product.price?.toInt()?: throw MissingFieldException("price")
-                    it[partNumber] = product.partNumber.toString()
-                    it[unitOfMeasure] = product.unitOfMeasure?: throw MissingFieldException("unitOfMeasure")
+                dbQuery {
+                    val owner = ProductSchema.User.select {
+                        ProductSchema.User.name eq (product.owner?.name?: "")
+                    }.firstOrNull()?: throw MissingFieldException("owner not exists")
+                    val ownerId = owner[ProductSchema.User.id]
+                    val metadata = ProductSchema.Metadata.insert {
+                        it[createdBy] = ownerId
+                        it[createdAt] = Instant.now()
+                    }
+                    ProductSchema.Products.insert {
+                        it[name] = product.name0.toString()
+                        it[coordinate_x] =
+                            product.coordinates?.x?.toFloat() ?: throw MissingFieldException("coordinate_x")
+                        it[coordinate_y] =
+                            product.coordinates.y?.toFloat() ?: throw MissingFieldException("coordinate_y")
+                        it[price] = product.price?.toInt() ?: throw MissingFieldException("price")
+                        it[this.owner] = ownerId
+                        it[this.metadata] = metadata[ProductSchema.Metadata.id]
+                        it[partNumber] = product.partNumber.toString()
+                        it[unitOfMeasure] = product.unitOfMeasure ?: throw MissingFieldException("unitOfMeasure")
+                    }
                 }
-            }
-            products.add(product)
+            products.addProduct(product)
+            onResult(ExecutionResult.error("Product added"))
         } catch (e: Exception) {
             onResult(ExecutionResult.error("Product not added cause: ${e.message}"))
         }
-        onResult(ExecutionResult.success("Product added"))
     }
 
     override suspend fun removeProductById(id: Long, onResult: (ExecutionResult) -> Unit) = run {
@@ -42,7 +64,7 @@ class ProductRepository : ProductDao {
                 with(ProductSchema.Products) {
                     deleteWhere { ProductSchema.Products.id eq id }
                 }
-                val product = products.firstOrNull { it.id == id }
+                val product = products.products.firstOrNull { it.id == id }
                 if (product != null) {
                     products.remove(product)
                     onResult(ExecutionResult.success("Product removed"))
@@ -56,15 +78,15 @@ class ProductRepository : ProductDao {
     }
 
     override fun getSize(): Int {
-        return products.size
+        return products.products.size
     }
 
     override fun compareMax(product: Product): Boolean {
-        return products.comparator().compare(product, products.max()) > 0
+        return products.products.comparator().compare(product, products.products.max()) > 0
     }
 
     override fun compareMin(product: Product): Boolean {
-        return products.comparator().compare(product, products.max()) < 0
+        return products.products.comparator().compare(product, products.products.max()) < 0
     }
 
     override suspend fun removeAllGreaterThan(product: Product, onResult: (ExecutionResult) -> Unit): Int {
@@ -73,8 +95,8 @@ class ProductRepository : ProductDao {
                 with(ProductSchema.Products) {
                     deleteWhere { price eq (product.price?.toInt() ?: throw MissingFieldException("price")) }
                     var count = 0
-                    while (products.comparator().compare(product, products.max()) > 0) {
-                        products.remove(products.max())
+                    while (products.products.comparator().compare(product, products.products.max()) > 0) {
+                        products.remove(products.products.max())
                         count++
                     }
                     return@dbQuery count
@@ -86,7 +108,7 @@ class ProductRepository : ProductDao {
         return 0
     }
 
-    override fun filter(predicate: (Product) -> Boolean) = products.filter { predicate(it) }
+    override fun filter(predicate: (Product) -> Boolean) = products.products.filter { predicate(it) }
 
     override suspend fun clear(onResult: (ExecutionResult) -> Unit) = dbQuery {
         try {
@@ -112,4 +134,25 @@ fun <T> Iterable<T>.averageBy(selector: (T) -> Number): Double {
         count++
     }
     return if (count > 0) sum / count else 0.0
+}
+
+class IMC {
+    val products: TreeSet<Product> = TreeSet<Product>()
+    val mutex = Mutex()
+
+    suspend fun addProduct(p: Product) {
+        mutex.withLock {
+            products.add(p)
+        }
+    }
+    suspend fun remove(p: Product) {
+        mutex.withLock {
+            products.remove(p)
+        }
+    }
+    suspend fun clear() {
+        mutex.withLock {
+            products.clear()
+        }
+    }
 }

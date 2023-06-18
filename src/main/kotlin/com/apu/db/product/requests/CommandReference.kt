@@ -1,6 +1,6 @@
 package com.apu.db.product.requests
 
-import com.apu.callback.ExecutionResult
+import com.apu.data.ExecutionResult
 import java.util.regex.Pattern
 
 enum class CPT(val pattern: Pattern) {

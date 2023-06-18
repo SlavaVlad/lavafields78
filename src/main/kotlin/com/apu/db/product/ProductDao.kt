@@ -1,6 +1,6 @@
 package com.apu.db.product
 
-import com.apu.callback.ExecutionResult
+import com.apu.data.ExecutionResult
 import persistence.database.product.Product
 
 interface ProductDao {

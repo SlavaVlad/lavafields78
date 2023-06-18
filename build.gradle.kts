@@ -39,9 +39,11 @@ dependencies {
     implementation ("org.postgresql:postgresql:42.6.0")
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-default-headers-jvm:2.3.1")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("io.ktor:ktor-serialization-gson:2.3.1")
 }

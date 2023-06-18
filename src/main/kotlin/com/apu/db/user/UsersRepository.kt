@@ -1,6 +1,6 @@
 package com.apu.db.user
 
-import com.apu.callback.ExecutionResult
+import com.apu.data.ExecutionResult
 import com.apu.db.product.ProductSchema
 import com.apu.plugins.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
