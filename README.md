@@ -5,5 +5,5 @@ UI Compose for Desktop
 На мой взгляд, CommandReference и всё что связано с обработкой команд является нагляднейшим пособием по функционалке на Kotlin, а также здесь самые хитровыебанные лямбды в мире)
 Учитесь и да пребудет с вами бог! 
 
-[!IMPORTANT]
-very public and loud constant val thanks = "Петренко Никита боженька)"
+> [!IMPORTANT]
+> very public and loud constant val thanks = "Петренко Никита боженька)"
